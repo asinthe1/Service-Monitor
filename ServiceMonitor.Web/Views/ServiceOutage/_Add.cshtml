@@ -1,0 +1,56 @@
+﻿
+
+<div id="add-serviceOutage-@Model.Id">
+    <div class="form-wrapper">
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Reason</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value:Reason" class="k-textbox" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Start Date</label>
+            <div class="col-md-12">
+                <input data-role="datepicker" data-bind="value: StartDate" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">End Date</label>
+            <div class="col-md-12">
+                <input data-role="datepicker" data-bind="value: EndDate" />
+            </div>
+        </div>
+
+        <div class="row form-footer">
+            <div>
+                <button class="k-button k-button-icontext" data-bind="events={click:addServiceOutage@(Model.Id)}"><span class="k-icon k-i-save"></span>Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+        var addServiceOutageModel@(Model.Id) = kendo.observable(@(Html.Raw(Json.Encode(Model))));
+        addServiceOutageModel@(Model.Id).set('gridVisible',false);
+        addServiceOutageModel@(Model.Id).set('addServiceOutage@(Model.Id)',
+            function () {
+                var data = addServiceOutageModel@(Model.Id);
+                if (!data.ContactData) {
+                    alert("Contact Data Required");
+                    return;
+                }
+                data.StartDate = kendo.toString(data.StartDate != null && data.StartDate.toString().indexOf('/') == 0 ? '@Model.StartDate' : data.StartDate, "MM-dd-yyyy");
+                data.EndDate = kendo.toString(data.EndDate != null && data.EndDate.toString().indexOf('/') == 0 ? '@Model.EndDate' : data.EndDate, "MM-dd-yyyy");
+                $.post('@Url.HttpRouteUrl("ActionApi",new{controller="ServiceOutages", action="Post"})', data.toWebAPIReadyJSON()
+                    )
+                    .done(function() {
+                        @if (ViewBag.Callback != null)
+                    {
+                        @ViewBag.Callback@:();
+                    }
+                    }).fail(function() {
+                        alert('SomethingWentWrong');
+                    });
+            });
+        kendo.bind($('#add-serviceOutage-@Model.Id'), addServiceOutageModel@(Model.Id));
+</script>

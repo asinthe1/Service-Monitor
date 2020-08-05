@@ -1,0 +1,81 @@
+﻿
+<div id="add-notification-@Model.Id">
+    <div class="form-wrapper">
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-4 col-xs-12">Notification Type</label>
+            <div class="col-md-8 col-xs-12">
+                <input id="dd-SurveyId" data-role="dropdownlist"
+                       data-auto-bind="false"
+                       data-value-primitive="true"
+                       data-text-field="Name"
+                       data-value-field="Id"
+                       data-bind="value: NotificationTypeId, source: notificationTypes"
+                       style="width: 100%;" tabindex="1" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-4 col-xs-12">Notification Method</label>
+            <div class="col-md-8 col-xs-12">
+                <input id="dd-SurveyId" data-role="dropdownlist"
+                       data-auto-bind="false"
+                       data-value-primitive="true"
+                       data-text-field="Name"
+                       data-value-field="Id"
+                       data-bind="value: NotificationMethodId, source: notificationMethods"
+                       style="width: 100%;" tabindex="1" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Contact Data</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: ContactData" class="k-textbox" />
+            </div>
+        </div>
+
+        <div class="row form-footer">
+            <div>
+                <button class="k-button k-button-icontext" data-bind="events={click:addNotification@(Model.Id)}"><span class="k-icon k-i-save"></span>Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+        var addNotificationModel@(Model.Id) = kendo.observable(@(Html.Raw(Json.Encode(Model))));
+        addNotificationModel@(Model.Id).set('gridVisible',false);
+        addNotificationModel@(Model.Id).set('addNotification@(Model.Id)',
+            function () {
+                var data = addNotificationModel@(Model.Id);
+                if (!data.ContactData) {
+                    alert("Contact Data Required");
+                    return;
+                }
+                $.post('@Url.HttpRouteUrl("ActionApi",new{controller="Notifications", action="Post"})', data.toWebAPIReadyJSON()
+                    )
+                    .done(function() {
+                        @if (ViewBag.Callback != null)
+                    {
+                        @ViewBag.Callback@:();
+                    }
+                    }).fail(function() {
+                        alert('SomethingWentWrong');
+                    });
+            });
+        addNotificationModel@(Model.Id).set('notificationTypes',
+            new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: '@Url.HttpRouteUrl("ActionApi",new { controller= "NotificationTypes", action="GetAll"})'
+                    }
+                }
+            }));
+        addNotificationModel@(Model.Id).set('notificationMethods',
+            new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: '@Url.HttpRouteUrl("ActionApi",new { controller= "NotificationMethods", action="GetAll"})'
+                    }
+                }
+            }));
+        kendo.bind($('#add-notification-@Model.Id'), addNotificationModel@(Model.Id));
+</script>

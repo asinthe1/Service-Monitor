@@ -1,0 +1,120 @@
+﻿@using ServiceMonitor.BL
+<div id="gNotification@(Model)"></div>
+
+<script type="text/x-kendo-template" id="gNotification-toolbar-template@(Model)">
+    <button id="gNotification-add" class="k-button k-button-icontext" onclick="notificationModel@(Model).addNotification()"><span class="k-icon k-i-plus"></span> Add</button>
+</script>
+<script type="text/x-kendo-template" id="gNotification-detail-template@(Model)">
+    <div class="tabstrip"></div>
+</script>
+
+
+<script>
+
+        var notificationModel@(Model) = function() {
+
+            var refreshingNotification = function() {
+                $("#gNotification@(Model)").data('kendoGrid').dataSource.read();
+            }
+
+            var closeAddNotification = function() {
+                $('#add-notification').data('kendoWindow').close();
+            }
+
+            var addNotification = function() {
+                $("<div/>").attr('id', 'add-notification').kendoWindow({
+                    width: 850,
+                    height: 600,
+                    title: 'Add Notification',
+                    modal: true,
+                    actions: ["Close"],
+                    content: '@Url.Action("_Add", "Notification")?id=@(Model)&callback=notificationModel@(Model).closeAddNotification',
+                    close: function(e) {
+                        e.sender.destroy();
+                        refreshingNotification();
+                    }
+                }).data("kendoWindow").center().open();
+            }
+
+            var notificationDetailInit = function(e) {
+                var detailRow = e.detailRow;
+                var handler = detailRow.find(".tabstrip").kendoTabStrip({
+                    animation: {
+                        open: { effects: "fade:in", duration: 200 },
+                        close: { effects: "fade:out", duration: 200 }
+                    },
+                    dataTextField: 'Name',
+                    dataContentUrlField: 'url',
+                    dataSource: [
+                        { Name: "General", url: '@Url.Action("_Edit", "Notification")/' +
+                            e.data.Id +
+                            '?callback=notificationModel@(Model).refreshingNotification'
+                        }
+                    ]
+                }).data('kendoTabStrip');
+                handler.select(0);
+            }
+
+            var initNotification = function() {
+                $("#gNotification@(Model)").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url:
+                                    "@Url.HttpRouteUrl("ActionApi", new {controller = "Notifications", action = "Get"})/@(Model)",
+                            }
+                        },
+                        pageSize: 20,
+                        schema: {
+                            model: {
+                                id: "Id",
+                                fields: {
+                                    Id: { type: "number", defaultValue: 0, editable: false },
+                                    NotificationTypeId: { type: "number" },
+                                    NotificationMethordId: { type: "number" },
+                                    ContactData: { type: "string" },
+                                }
+                            }
+                        }
+                    },
+                    selectable: true,
+                    autoBind: true,
+                    toolbar: kendo.template($("#gNotification-toolbar-template@(Model)").html()),
+                    detailTemplate: kendo.template($("#gNotification-detail-template@(Model)").html()),
+                    detailInit: notificationDetailInit,
+                    pageable: {
+                        pageSize: 20,
+                        refresh: true
+                    },
+                    columns: [
+                        {
+                            field: "NotificationTypeId",
+                            width: "150px",
+                            title:"Notification Type",
+                            values: @Html.Raw(Json.Encode(new NotificationTypeMgt().GetAll().Select(x => new { text=x.Name, value=x.Id })))
+                        },
+                        {
+                            field: "NotificationMethodId",
+                            width: "150px",
+                            title: "Notification Method",
+                            values: @Html.Raw(Json.Encode(new NotificationMethodMgt().GetAll().Select(x => new { text=x.Name, value=x.Id })))
+                        },
+                        { field: "ContactData"}
+                    ]
+                });
+            }
+            return {
+                init: function() {
+                    initNotification();
+                },
+                refreshingNotification: refreshingNotification,
+                addNotification: addNotification,
+                closeAddNotification: closeAddNotification
+            }
+        }();
+
+        $(document).ready(function() {
+            notificationModel@(Model).init();
+        });
+
+</script>

@@ -1,0 +1,87 @@
+﻿
+<div id="edit-service-@Model.Id">
+    <div class="form-wrapper">
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Name</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: Name" class="k-textbox" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Description</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: Description" class="k-textbox" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Host</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: Host" class="k-textbox" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Port</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: Port" class="k-textbox" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Frequency</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: Frequency" class="k-textbox" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">GraceTime</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: GraceTime" class="k-textbox" />
+            </div>
+        </div>
+        <div class="row form-footer">
+            <div>
+                @Html.Action("_Delete", "Service", new {id = Model.Id, callback = ViewBag.Callback })
+                <button class="k-button k-button-icontext" data-bind="events={click:editService@(Model.Id)}"><span class="k-icon k-i-save"></span>Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+        var editServiceModel@(Model.Id) = kendo.observable(@(Html.Raw(Json.Encode(Model))));
+        editServiceModel@(Model.Id).set('gridVisible',false);
+        editServiceModel@(Model.Id).set('editService@(Model.Id)',
+            function () {
+                var data = editServiceModel@(Model.Id);
+                if (!data.Name) {
+                    alert("Service Name Required");
+                    return;
+                }
+                else if (!data.Host) {
+                    alert("Service Host Required");
+                    return;
+                }
+                else if (!data.Port) {
+                    alert("Service Port Required");
+                    return;
+                }
+                else if (!data.Frequency) {
+                    alert("Service Frequency Required");
+                    return;
+                }
+                $.ajax({
+                        url: '@Url.HttpRouteUrl("ActionApi",new{controller="Services", action= "Put" })',
+                        method: 'PUT',
+                        data: data.toWebAPIReadyJSON()
+                    })
+                    .done(function() {
+                        @if (ViewBag.Callback != null)
+                    {
+                        @ViewBag.Callback@:();
+                    }
+                    }).fail(function() {
+                        alert('SomethingWentWrong');
+                    });
+            });
+
+        kendo.bind($('#edit-service-@Model.Id'), editServiceModel@(Model.Id));
+</script>

@@ -1,0 +1,119 @@
+﻿@{
+    ViewBag.Title = "Services";
+}
+<div id="gService"></div>
+
+<script type="text/x-kendo-template" id="gService-toolbar-template">
+    <button id="gService-add" class="k-button k-button-icontext" onclick="serviceModel.addService()"><span class="k-icon k-i-plus"></span> Add</button>
+</script>
+<script type="text/x-kendo-template" id="gService-detail-template">
+    <div class="tabstrip"></div>
+</script>
+
+@section scripts
+{
+    <script>
+
+        var serviceModel = function() {
+
+            var refreshingService = function() {
+                $("#gService").data('kendoGrid').dataSource.read();
+            }
+
+            var closeAddService = function() {
+                $('#add-service').data('kendoWindow').close();
+            }
+
+            var addService = function() {
+                $("<div/>").attr('id', 'add-service').kendoWindow({
+                    width: 850,
+                    height: 600,
+                    title: 'Add Service',
+                    modal: true,
+                    actions: ["Close"],
+                    content: '@Url.Action("_Add", "Service")?callback=serviceModel.closeAddService',
+                    close: function(e) {
+                        e.sender.destroy();
+                        refreshingService();
+                    }
+                }).data("kendoWindow").center().open();
+            }
+
+            var serviceDetailInit = function(e) {
+                var detailRow = e.detailRow;
+                var handler = detailRow.find(".tabstrip").kendoTabStrip({
+                    animation: {
+                        open: { effects: "fade:in", duration: 200 },
+                        close: { effects: "fade:out", duration: 200 }
+                    },
+                    dataTextField: 'Name',
+                    dataContentUrlField: 'url',
+                    dataSource: [
+                        { Name: "General", url: '@Url.Action("_Edit", "Service")/' + e.data.Id + '?callback=serviceModel.refreshingService' },
+                        { Name: "Notification", url: '@Url.Action("_Notification", "Notification")/' + e.data.Id + '?callback=serviceModel.refreshingService' },
+                        { Name: "Service Outage", url: '@Url.Action("_ServiceOutage", "ServiceOutage")/' + e.data.Id + '?callback=serviceModel.refreshingService' }
+                    ]
+                }).data('kendoTabStrip');
+                handler.select(0);
+            }
+
+            var initService = function() {
+                $("#gService").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url:
+                                    "@Url.HttpRouteUrl("ActionApi", new {controller = "Services", action = "GetAll"})",
+                            }
+                        },
+                        pageSize: 20,
+                        schema: {
+                            model: {
+                                id: "Id",
+                                fields: {
+                                    Id: { type: "number", defaultValue: 0, editable: false },
+                                    Name: { type: "string" },
+                                    Description: { type: "string" },
+                                    Host: { type: "string" },
+                                    Port: { type: "number" },
+                                    Frequency: { type: "number" },
+                                    GraceTime: { type: "number" }
+                                }
+                            }
+                        }
+                    },
+                    selectable: true,
+                    autoBind: true,
+                    toolbar: kendo.template($("#gService-toolbar-template").html()),
+                    detailTemplate: kendo.template($("#gService-detail-template").html()),
+                    detailInit: serviceDetailInit,
+                    pageable: {
+                        pageSize: 20,
+                        refresh: true
+                    },
+                    columns: [
+                        { field: "Name", width: "230px"},
+                        { field: "Description"},
+                        { field: "Host"},
+                        { field: "Port"},
+                        { field: "Frequency"},
+                        { field: "GraceTime"}
+                    ]
+                });
+            }
+            return {
+                init: function() {
+                    initService();
+                },
+                refreshingService: refreshingService,
+                addService: addService,
+                closeAddService: closeAddService
+            }
+        }();
+
+        $(document).ready(function() {
+            serviceModel.init();
+        });
+
+    </script>
+}

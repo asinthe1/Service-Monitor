@@ -1,0 +1,111 @@
+﻿
+@using ServiceMonitor.BL
+<div id="gServiceOutage@(Model)"></div>
+
+<script type="text/x-kendo-template" id="gServiceOutage-toolbar-template@(Model)">
+    <button id="gServiceOutage-add" class="k-button k-button-icontext" onclick="serviceOutageModel@(Model).addServiceOutage()"><span class="k-icon k-i-plus"></span> Add</button>
+</script>
+<script type="text/x-kendo-template" id="gServiceOutage-detail-template@(Model)">
+    <div class="tabstrip"></div>
+</script>
+
+
+<script>
+
+        var serviceOutageModel@(Model) = function() {
+
+            var refreshingServiceOutage = function() {
+                $("#gServiceOutage@(Model)").data('kendoGrid').dataSource.read();
+            }
+
+            var closeAddServiceOutage = function() {
+                $('#add-serviceOutage').data('kendoWindow').close();
+            }
+
+            var addServiceOutage = function() {
+                $("<div/>").attr('id', 'add-serviceOutage').kendoWindow({
+                    width: 850,
+                    height: 600,
+                    title: 'Add ServiceOutage',
+                    modal: true,
+                    actions: ["Close"],
+                    content: '@Url.Action("_Add", "ServiceOutage")?id=@(Model)&callback=serviceOutageModel@(Model).closeAddServiceOutage',
+                    close: function(e) {
+                        e.sender.destroy();
+                        refreshingServiceOutage();
+                    }
+                }).data("kendoWindow").center().open();
+            }
+
+            var serviceOutageDetailInit = function(e) {
+                var detailRow = e.detailRow;
+                var handler = detailRow.find(".tabstrip").kendoTabStrip({
+                    animation: {
+                        open: { effects: "fade:in", duration: 200 },
+                        close: { effects: "fade:out", duration: 200 }
+                    },
+                    dataTextField: 'Name',
+                    dataContentUrlField: 'url',
+                    dataSource: [
+                        { Name: "General", url: '@Url.Action("_Edit", "ServiceOutage")/' +
+                            e.data.Id +
+                            '?callback=serviceOutageModel@(Model).refreshingServiceOutage'
+                        }
+                    ]
+                }).data('kendoTabStrip');
+                handler.select(0);
+            }
+
+            var initServiceOutage = function() {
+                $("#gServiceOutage@(Model)").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url:
+                                    "@Url.HttpRouteUrl("ActionApi", new {controller = "ServiceOutages", action = "Get"})/@(Model)",
+                            }
+                        },
+                        pageSize: 20,
+                        schema: {
+                            model: {
+                                id: "Id",
+                                fields: {
+                                    Id: { type: "number", defaultValue: 0, editable: false },
+                                    Reason: { type: "string" },
+                                    StartDateTime: { type: "date" },
+                                    EndDateTime: { type: "date" },
+                                }
+                            }
+                        }
+                    },
+                    selectable: true,
+                    autoBind: true,
+                    toolbar: kendo.template($("#gServiceOutage-toolbar-template@(Model)").html()),
+                    detailTemplate: kendo.template($("#gServiceOutage-detail-template@(Model)").html()),
+                    detailInit: serviceOutageDetailInit,
+                    pageable: {
+                        pageSize: 20,
+                        refresh: true
+                    },
+                    columns: [
+                        { field: "Reason" },
+                        { field: "StartDateTime", width: "150px", title: "StartDate", template: "#= kendo.toString(kendo.parseDate(StartDateTime, 'yyyy-MM-dd'), 'MM/dd/yyyy') #" },
+                        { field: "EndDateTime", width: "150px", title: "StartDate", template: "#= kendo.toString(kendo.parseDate(EndDateTime, 'yyyy-MM-dd'), 'MM/dd/yyyy') #" },
+                    ]
+                });
+            }
+            return {
+                init: function() {
+                    initServiceOutage();
+                },
+                refreshingServiceOutage: refreshingServiceOutage,
+                addServiceOutage: addServiceOutage,
+                closeAddServiceOutage: closeAddServiceOutage
+            }
+        }();
+
+        $(document).ready(function() {
+            serviceOutageModel@(Model).init();
+        });
+
+</script>

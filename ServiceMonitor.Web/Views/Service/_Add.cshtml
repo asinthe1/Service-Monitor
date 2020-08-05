@@ -1,0 +1,84 @@
+﻿
+<div id="add-service-@Model.Id">
+    <div class="form-wrapper">
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Name</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: Name" class="k-textbox" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Description</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: Description" class="k-textbox" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Host</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: Host" class="k-textbox" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Port</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: Port" class="k-textbox" />
+            </div>
+        </div> 
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Frequency</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: Frequency" class="k-textbox" />
+            </div>
+        </div> 
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">GraceTime</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value: GraceTime" class="k-textbox" />
+            </div>
+        </div>
+       
+        <div class="row form-footer">
+            <div>
+                <button class="k-button k-button-icontext" data-bind="events={click:addService@(Model.Id)}"><span class="k-icon k-i-save"></span>Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+        var addServiceModel@(Model.Id) = kendo.observable(@(Html.Raw(Json.Encode(Model))));
+        addServiceModel@(Model.Id).set('gridVisible',false);
+        addServiceModel@(Model.Id).set('addService@(Model.Id)',
+            function () {
+                var data = addServiceModel@(Model.Id);
+                if (!data.Name) {
+                    alert("Service Name Required");
+                    return;
+                }
+                else if (!data.Host) {
+                    alert("Service Host Required");
+                    return;
+                }
+                else if (!data.Port) {
+                    alert("Service Port Required");
+                    return;
+                }
+                else if (!data.Frequency) {
+                    alert("Service Frequency Required");
+                    return;
+                }
+                $.post('@Url.HttpRouteUrl("ActionApi",new{controller="Services", action="Post"})', data.toWebAPIReadyJSON()
+                    )
+                    .done(function() {
+                        @if (ViewBag.Callback != null)
+                    {
+                        @ViewBag.Callback@:();
+                    }
+                    }).fail(function() {
+                        alert('SomethingWentWrong');
+                    });
+            });
+
+        kendo.bind($('#add-service-@Model.Id'), addServiceModel@(Model.Id));
+</script>

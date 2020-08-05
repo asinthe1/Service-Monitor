@@ -3,3 +3,11 @@
 ################################################################################
 
 /packages
+/ServiceMonitor.BL/bin/Debug
+/ServiceMonitor.BL/obj
+/ServiceMonitor.Entity/bin/Debug
+/ServiceMonitor.Entity/obj
+/ServiceMonitor.MonitorService/bin/Debug
+/ServiceMonitor.MonitorService/obj
+/ServiceMonitor.Web/bin
+/ServiceMonitor.Web/obj
