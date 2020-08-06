@@ -11,3 +11,7 @@
 /ServiceMonitor.MonitorService/obj
 /ServiceMonitor.Web/bin
 /ServiceMonitor.Web/obj
+/ServiceMonitor.BL/bin/Release
+/ServiceMonitor.Entity/bin/Release
+/ServiceMonitor.MonitorService/bin/Release
+/ServiceMonitor.Web.Tests/bin

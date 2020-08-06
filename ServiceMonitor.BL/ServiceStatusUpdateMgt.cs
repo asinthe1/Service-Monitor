@@ -21,20 +21,17 @@ namespace ServiceMonitor.BL
                 {
                     tcpClient.Connect(service.Host, service.Port);
                     if (new ServiceStatusMgt().UpdateServiceStatus(service.Id, true))
-                        SendNotification(service, true);
+                        SendNotification(service, true);//send notification if change in service status
                 }
                 catch (Exception e)
                 {
-                    if (new ServiceStatusMgt().UpdateServiceStatus(service.Id, false))
-                        SendNotification(service, false);
-
                     if (new ServiceStatusLogMgt().GetLastWorkingTimeByServiceId(service.Id)?.CreatedTime
                         .AddSeconds(service.GraceTime.GetValueOrDefault(0)) <= DateTime.UtcNow)
                     {
                         var lastNotification = new NotificationLogMgt().GetLastNotification(service.Id);
                         if (lastNotification != null && !lastNotification.IsWorking)
                         {
-                            SendNotification(service, false);
+                            SendNotification(service, false);//send notification if service down till grace period 
                         }
                     }
 
@@ -45,18 +42,18 @@ namespace ServiceMonitor.BL
 
         public void SendNotification(Service service, bool isWorking)
         {
-            if (!new ServiceOutageMgt().IsServiceOutage(service.Id))
+            if (!new ServiceOutageMgt().IsServiceOutage(service.Id))//check the service in outage period
             {
                 var notificions = new NotificationMgt().GetNotificationsForService(service.Id);
                 foreach (var notification in notificions)
                 {
-                    if (notification.NotificationMethodId == (int)NotificationMethodEnum.Email)
+                    if (notification.NotificationMethodId == (int)NotificationMethodEnum.Email)//for notification type is email
                     {
                         if ((notification.NotificationTypeId == (int)NotificationTypeEnum.ServiceUp ||
                              notification.NotificationTypeId == (int)NotificationTypeEnum.ServiceUpDown)
                             && isWorking)
                         {
-                            SendEmail(notification.ContactData, service.Name, isWorking);
+                            SendEmail(notification.ContactData, service.Name, isWorking);//send email to callers who subscribe for service up or up and down
                             new NotificationLogMgt().AddNotificationLog(new NotificationLog
                             {
                                 IsWorking = isWorking,
@@ -72,7 +69,7 @@ namespace ServiceMonitor.BL
                             && !isWorking)
                         {
 
-                            SendEmail(notification.ContactData, service.Name, isWorking);
+                            SendEmail(notification.ContactData, service.Name, isWorking);//send email to callers who subscribe for service down or up and down
                             new NotificationLogMgt().AddNotificationLog(new NotificationLog
                             {
                                 IsWorking = isWorking,
@@ -91,7 +88,7 @@ namespace ServiceMonitor.BL
 
         public void SendEmail(string emailAddress, string serviceName, bool isWorking)
         {
-            NameValueCollection appSettings = ConfigurationManager.AppSettings;
+            NameValueCollection appSettings = ConfigurationManager.AppSettings;//get configuration from app config file
 
             var fromAddress = new MailAddress(appSettings["EmailAddress"], "Service Notification");
             var toAddress = new MailAddress(emailAddress, emailAddress);

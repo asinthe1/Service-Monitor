@@ -16,6 +16,11 @@ namespace ServiceMonitor.MonitorService
         /// </summary>
         static void Main(string[] args)
         {
+            AppDomain.CurrentDomain.SetData("DataDirectory", AppDomain.CurrentDomain.BaseDirectory
+                .Replace("ServiceMonitor.MonitorService\\bin\\Debug\\", "")
+                .Replace("ServiceMonitor.MonitorService\\bin\\Release\\", "")
+            );//set local db path relative to service change connection string in app config if path is changed
+
 #if DEBUG
             Service service = new Service();
             service.onDebug();
@@ -44,6 +49,6 @@ namespace ServiceMonitor.MonitorService
                 ServiceBase.Run(ServicesToRun);
             }
 #endif
-        }
+        }//added for easy debug and service install process
     }
 }

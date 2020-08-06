@@ -8,17 +8,19 @@
         <div class="service-details">
             <h2><strong>#:Name#</strong></h2>
             @*<h2><strong style="color:yellow;">#:LastUpdateTime#</strong></h2>*@
-            <h4>#=kendo.toString(dashboardApp.getLocalDatetime(LastUpdateTime),'yyyy-MM-dd HH:mm:ss')#</h4>
+            <h4>Last Update Time #=kendo.toString(dashboardApp.getLocalDatetime(LastUpdateTime),'yyyy-MM-dd HH:mm:ss')#</h4>
             <h4>#=dashboardApp.getTimeGap(dashboardApp.getLocalDatetime(LastUpdateTime))#</h4>
+            <h4>Last Working Time #=kendo.toString(dashboardApp.getLocalDatetime(LastWorkingTime),'yyyy-MM-dd HH:mm:ss')#</h4>
+
         </div>
         <div class="service-icons">
             <div>
                 <strong><i class="fa fa-tachometer fa-3x"></i></strong>
             </div>
             <div>
-                #if(dashboardApp.getThreasholdLevel(LastUpdateTime,WarningLevel,ErrorLevel)=='Ok'){#
+                #if(dashboardApp.getThreasholdLevel(LastWorkingTime,WarningLevel,ErrorLevel)=='Ok'){#
                 <strong style="color:lime"><i class="fa fa-heartbeat fa-3x"></i></strong>
-                #} else if(dashboardApp.getThreasholdLevel(LastUpdateTime,WarningLevel,ErrorLevel)=='Warning'){#
+                #} else if(dashboardApp.getThreasholdLevel(LastWorkingTime,WarningLevel,ErrorLevel)=='Warning'){#
                 <strong style="color:orange"><i class="fa fa-heart fa-3x faa-pulse animated"></i></strong>
                 #} else {#
                 <strong style="color:\\#ff3448"><i class="fa fa-heart fa-3x faa-flash animated"></i></strong>
@@ -34,11 +36,7 @@
             <div id="dashboard-wrapper">
                 <div style="text-align: center;position: fixed;top: 0;left: 0;height: 45px;z-index: 1000;display: block;width: 100%">
                     <span class="h3" data-bind="text:lastRefreshed"></span>
-                    <button data-role="button"
-                            data-bind="events: { click: onClick }"
-                            style="width: 180px">
-                        Show All/Hide Ok items
-                    </button>
+                   
                 </div>
 
                 <div data-role="listview"
@@ -61,15 +59,12 @@
     
     <script>
         var model = {};
-        var showAll = false;
 
         var dashboardApp = function() {
             var createDataSource = function (data) {
                 model = kendo.observable({
                     items: new kendo.data.DataSource({
-                        data: showAll ?  data.items : jQuery.grep(data.items, function( n, i ) {
-                            return (getThreasholdLevel(n.LastUpdateTime, n.WarningLevel, n.ErrorLevel) != 'Ok' );
-                        }),
+                        data: data.items,
                         schema: {
                             model: {
                                 id: "Id"
@@ -77,11 +72,6 @@
                         }
                     }),
                     lastRefreshed: new Date(),
-
-                    onClick: function() {
-                        showAll = !showAll;
-                        read();
-                    }
                 });
             };
             var read = function() {
@@ -115,7 +105,7 @@
                     return moment(stillUtc).local().format('YYYY-MM-DD HH:mm:ss');
                 },
                 getThreasholdLevel = function(time, warningLevel, errorLevel) {
-
+                    debugger
                     var minutes = moment.utc().diff(moment.utc(time), 'minutes');
                     if (warningLevel > minutes) {
                         return "Ok";

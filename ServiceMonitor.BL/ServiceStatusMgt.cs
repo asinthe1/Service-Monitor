@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,12 +10,12 @@ namespace ServiceMonitor.BL
 {
     public class ServiceStatusMgt
     {
-        public List<ServiceStatus> GetByServiceId(int id)
+        public ServiceStatus GetByServiceId(int id)
         {
             using (var c = new ServiceDBModel())
 
             {
-                return c.ServiceStatus.Where(x => x.ServiceId == id ).ToList();
+                return c.ServiceStatus.FirstOrDefault(x => x.ServiceId == id );
             }
         }
 
@@ -26,10 +27,11 @@ namespace ServiceMonitor.BL
                 var service = c.ServiceStatus.FirstOrDefault(x => x.ServiceId == serviceId);
                 if (service != null)
                 {
-                    statusChanged = service.IsWorking != isWorking;
+                    statusChanged = service.IsWorking != isWorking; // check the service status is changed
                     service.LastUpdateTime = DateTime.UtcNow ;
+                    service.LastWorkingTime = isWorking ? DateTime.UtcNow :service.LastWorkingTime;
                     service.IsWorking = isWorking;
-                    
+                    c.Entry(service).State = EntityState.Modified;
                 }
                 else
                 {
@@ -39,6 +41,7 @@ namespace ServiceMonitor.BL
                     {
                         IsWorking = isWorking,
                         LastUpdateTime = DateTime.UtcNow,
+                        LastWorkingTime = isWorking ? DateTime.UtcNow : (DateTime?)null,
                         ServiceId = serviceId
                     };
                     c.ServiceStatus.Add(service);

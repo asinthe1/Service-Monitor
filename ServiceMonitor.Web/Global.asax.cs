@@ -22,7 +22,7 @@ namespace ServiceMonitor.Web
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             Database.SetInitializer<ServiceDBModel>(new DropCreateDatabaseIfModelChanges<ServiceDBModel>());
-            AppDomain.CurrentDomain.SetData("DataDirectory", AppDomain.CurrentDomain.BaseDirectory);
+            AppDomain.CurrentDomain.SetData("DataDirectory", AppDomain.CurrentDomain.BaseDirectory.Replace("ServiceMonitor.Web\\",""));
         }
     }
 }

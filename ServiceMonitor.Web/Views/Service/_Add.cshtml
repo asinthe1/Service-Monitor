@@ -29,12 +29,14 @@
             <label class="col-md-12">Frequency</label>
             <div class="col-md-12">
                 <input type="text" data-bind="value: Frequency" class="k-textbox" />
+                <label> Seconds</label>
             </div>
         </div> 
         <div class="row" style="margin-top: 5px;">
             <label class="col-md-12">GraceTime</label>
             <div class="col-md-12">
                 <input type="text" data-bind="value: GraceTime" class="k-textbox" />
+                <label> Seconds</label>
             </div>
         </div>
        
@@ -66,6 +68,14 @@
                 }
                 else if (!data.Frequency) {
                     alert("Service Frequency Required");
+                    return;
+                }
+                else if (data.Frequency < 1) {
+                    alert("Service Frequency Must Grater than zero");
+                    return;
+                }
+                else if (data.GraceTime < 1) {
+                    alert("Service GraceTime Must Grater than zero");
                     return;
                 }
                 $.post('@Url.HttpRouteUrl("ActionApi",new{controller="Services", action="Post"})', data.toWebAPIReadyJSON()

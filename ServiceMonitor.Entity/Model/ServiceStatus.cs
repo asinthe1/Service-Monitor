@@ -11,6 +11,7 @@ namespace ServiceMonitor.Entity.Model
         public bool IsWorking { get; set; }
 
         public DateTime LastUpdateTime { get; set; }
+        public DateTime? LastWorkingTime { get; set; }
 
         public virtual Service Service { get; set; }
 

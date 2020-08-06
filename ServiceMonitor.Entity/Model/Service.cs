@@ -38,6 +38,9 @@ namespace ServiceMonitor.Entity.Model
         public DateTime LastUpdateTime { get; set; }
 
         [NotMapped]
+        public DateTime? LastWorkingTime { get; set; }
+
+        [NotMapped]
         public int ErrorLevel => 10;
 
         [NotMapped]

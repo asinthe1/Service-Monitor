@@ -11,13 +11,13 @@
         <div class="row" style="margin-top: 5px;">
             <label class="col-md-12">Start Date</label>
             <div class="col-md-12">
-                <input data-role="datepicker" data-bind="value: StartDate" />
+                <input data-role="datetimepicker" data-bind="value: StartDateTime" />
             </div>
         </div>
         <div class="row" style="margin-top: 5px;">
             <label class="col-md-12">End Date</label>
             <div class="col-md-12">
-                <input data-role="datepicker" data-bind="value: EndDate" />
+                <input data-role="datetimepicker" data-bind="value: EndDateTime" />
             </div>
         </div>
 
@@ -35,12 +35,10 @@
         addServiceOutageModel@(Model.Id).set('addServiceOutage@(Model.Id)',
             function () {
                 var data = addServiceOutageModel@(Model.Id);
-                if (!data.ContactData) {
-                    alert("Contact Data Required");
+                if (!data.Reason) {
+                    alert("Reason Required");
                     return;
                 }
-                data.StartDate = kendo.toString(data.StartDate != null && data.StartDate.toString().indexOf('/') == 0 ? '@Model.StartDate' : data.StartDate, "MM-dd-yyyy");
-                data.EndDate = kendo.toString(data.EndDate != null && data.EndDate.toString().indexOf('/') == 0 ? '@Model.EndDate' : data.EndDate, "MM-dd-yyyy");
                 $.post('@Url.HttpRouteUrl("ActionApi",new{controller="ServiceOutages", action="Post"})', data.toWebAPIReadyJSON()
                     )
                     .done(function() {

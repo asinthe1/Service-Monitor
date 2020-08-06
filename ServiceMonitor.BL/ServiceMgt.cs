@@ -21,8 +21,12 @@ namespace ServiceMonitor.BL
                     foreach (var service in services)
                     {
                         var ServiceStatus = new ServiceStatusMgt().GetByServiceId(service.Id);
-                        if (ServiceStatus.FirstOrDefault() != null)
-                            service.LastUpdateTime = ServiceStatus.FirstOrDefault().LastUpdateTime;
+                        if (ServiceStatus != null)
+                        {
+                            service.LastUpdateTime = ServiceStatus.LastUpdateTime;
+                            service.LastWorkingTime = ServiceStatus.LastWorkingTime; // assign last status to service
+
+                        }
                     }
                     var serviceList = services.OrderByDescending(o => DateTime.UtcNow - o.LastUpdateTime).ToList();
 

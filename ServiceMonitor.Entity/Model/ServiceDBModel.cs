@@ -1,3 +1,5 @@
+using ServiceMonitor.Entity.Migrations;
+
 namespace ServiceMonitor.Entity.Model
 {
     using System.Data.Entity;
@@ -36,7 +38,8 @@ namespace ServiceMonitor.Entity.Model
                 .HasForeignKey(e => e.ServiceStatusId)
                 .WillCascadeOnDelete(false);
 
-           
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<ServiceDBModel, Configuration>()); //initialize database for new instance
+
         }
     }
 }

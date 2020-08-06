@@ -1,1 +1,37 @@
 ﻿
+
+
+@model ServiceMonitor.Entity.Model.ServiceOutage
+@{
+    string token = Model.Id.ToString();
+}
+
+<button class="k-button k-button-icontext" onclick="dropServiceOutage@(token)()" title="Delete Company Survey" tabindex="-1"><span class="k-icon k-i-trash"></span> Delete</button>
+
+<script>
+    var dropServiceOutage@(token) = function () {
+        $("<div/>").kendoConfirm({
+            title: "Confirmation",
+            content: "Confirm To Delete?",
+            messages: {
+                okText: "Confirm"
+            }
+        }).data("kendoConfirm").open().result.done(function() {
+            $.ajax({
+                url: '@Url.HttpRouteUrl("ActionApi",new{controller="ServiceOutages",action="Delete",Id=Model.Id})',
+                type: 'DELETE'
+            }).done(function(a, b, c) {
+                if (c.status === 304)
+                    alert('This Has Child Content');
+                else {
+                    @if (ViewBag.Callback != null)
+                    {
+                        @ViewBag.Callback@:();
+                    }
+                }
+            }).fail(function() {
+                alert('Something Went Wrong');
+            });
+        });
+    }
+</script>

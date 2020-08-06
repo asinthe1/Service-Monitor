@@ -1,1 +1,57 @@
 ﻿
+
+<div id="edit-serviceOutage-@Model.Id">
+    <div class="form-wrapper">
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Reason</label>
+            <div class="col-md-12">
+                <input type="text" data-bind="value:Reason" class="k-textbox" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">Start Date</label>
+            <div class="col-md-12">
+                <input data-role="datetimepicker" data-bind="value: StartDateTime" />
+            </div>
+        </div>
+        <div class="row" style="margin-top: 5px;">
+            <label class="col-md-12">End Date</label>
+            <div class="col-md-12">
+                <input data-role="datetimepicker" data-bind="value: EndDateTime" />
+            </div>
+        </div>
+        <div class="row form-footer">
+            <div>
+                @Html.Action("_Delete", "ServiceOutage", new { id = Model.Id, callback = ViewBag.Callback })
+                <button class="k-button k-button-icontext" data-bind="events={click:editServiceOutage@(Model.Id)}"><span class="k-icon k-i-save"></span>Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+        var editServiceOutageModel@(Model.Id) = kendo.observable(@(Html.Raw(Json.Encode(Model))));
+        editServiceOutageModel@(Model.Id).set('gridVisible',false);
+        editServiceOutageModel@(Model.Id).set('editServiceOutage@(Model.Id)',
+            function () {
+                var data = editServiceOutageModel@(Model.Id);
+                if (!data.Reason) {
+                    alert("Reason Required");
+                    return;
+                }
+                $.ajax({
+                        url: '@Url.HttpRouteUrl("ActionApi",new{controller="ServiceOutages", action= "Put" })',
+                        method: 'PUT',
+                        data: data.toWebAPIReadyJSON()
+                    })
+                    .done(function() {
+                        @if (ViewBag.Callback != null)
+                    {
+                        @ViewBag.Callback@:();
+                    }
+                    }).fail(function() {
+                        alert('SomethingWentWrong');
+                    });
+            });
+        kendo.bind($('#edit-serviceOutage-@Model.Id'), editServiceOutageModel@(Model.Id));
+</script>
